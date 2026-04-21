@@ -1,42 +1,15 @@
 package com.verifime.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 
-public class InvoiceLine {
-    private String description;
-    private String currency;
-    private BigDecimal amount;
-
-    public InvoiceLine() {
-    }
-
-    public InvoiceLine(String description, String currency, BigDecimal amount) {
-        this.description = description;
-        this.currency = currency;
-        this.amount = amount;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-}
+public record InvoiceLine (
+        String description,
+        @NotNull(message = "Currency must not be null")
+        String currency,
+        @NotNull(message = "Amount must not be null")
+        @Positive(message = "Amount must be positive")
+        BigDecimal amount
+){}

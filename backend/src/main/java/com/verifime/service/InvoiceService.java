@@ -1,14 +1,13 @@
 package com.verifime.service;
 
-import com.verifime.client.ExchangeRateClient;
 import com.verifime.dto.Invoice;
 import com.verifime.dto.InvoiceLine;
 import com.verifime.dto.InvoiceRequest;
+import com.verifime.exception.RateNotFoundException;
 import com.verifime.util.RoundingUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Map;
 
 
@@ -17,6 +16,9 @@ public class InvoiceService {
 
     @Inject
     ExchangeRateService exchangeRateService;
+
+    @Inject
+    CurrencyConverter currencyConverter;
 
     public BigDecimal calculateTotal(InvoiceRequest request) {
         if (request == null || request.getInvoice() == null || request.getInvoice().getLines() == null || request.getInvoice().getLines().isEmpty()) {
@@ -35,7 +37,7 @@ public class InvoiceService {
         return RoundingUtil.roundCurrency(total);
     }
 
-    private BigDecimal convertToCurrency(InvoiceLine line, String baseCurrency, Map<String, BigDecimal> rates) {
+/*    private BigDecimal convertToCurrency(InvoiceLine line, String baseCurrency, Map<String, BigDecimal> rates) {
         if (line.getCurrency().equalsIgnoreCase(baseCurrency)) {
             return RoundingUtil.roundCurrency(line.getAmount());
         }
@@ -54,5 +56,23 @@ public class InvoiceService {
                 .divide(rate, 10, RoundingMode.HALF_UP); // high precision
 
         return RoundingUtil.roundCurrency(converted); // 2 decimal here
+    }*/
+
+    private BigDecimal convertToCurrency(
+            InvoiceLine line,
+            String baseCurrency,
+            Map<String, BigDecimal> rates) {
+
+        if (line.currency().equalsIgnoreCase(baseCurrency)) {
+            return currencyConverter.normalize(line.amount());
+        }
+
+        BigDecimal rate = rates.get(line.currency());
+
+        if (rate == null) {
+            throw new RateNotFoundException("Rate not found for currency: " + line.currency());
+        }
+
+        return currencyConverter.convertToBase(line.amount(), rate);
     }
 }

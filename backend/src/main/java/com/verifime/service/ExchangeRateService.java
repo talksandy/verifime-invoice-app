@@ -1,6 +1,6 @@
 package com.verifime.service;
 
-import com.verifime.client.ExchangeRateClient;
+import com.verifime.client.ExchangeRateProvider;
 import com.verifime.dto.Invoice;
 import com.verifime.dto.InvoiceLine;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class ExchangeRateService {
 
     @Inject
-    ExchangeRateClient exchangeRateClient;
+    ExchangeRateProvider exchangeRateProvider;
 
     public Map<String, BigDecimal> getExchangeRates(Invoice invoice) {
 
@@ -24,18 +25,16 @@ public class ExchangeRateService {
         LocalDate date = invoice.getDate();
 
         Set<String> targetCurrencies = invoice.getLines().stream()
-                .map(InvoiceLine::getCurrency)
+                .map(InvoiceLine::currency)
                 .filter(currency -> !currency.equalsIgnoreCase(baseCurrency))
                 .collect(Collectors.toSet());
 
-        String targetCurrency = String.join(",", targetCurrencies);
-
-        if (targetCurrency.isEmpty()) {
-            return null;
+        if (targetCurrencies.isEmpty()) {
+            return Collections.emptyMap();
         }
 
-        Map<String, BigDecimal> rates = exchangeRateClient.getRates(baseCurrency, targetCurrency, date);
-        return rates;
-    }
+        String targetCurrency = String.join(",", targetCurrencies);
 
+        return exchangeRateProvider.getRates(baseCurrency, targetCurrency, date);
+    }
 }
