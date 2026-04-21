@@ -21,10 +21,10 @@ public class ExchangeRateService {
 
     public Map<String, BigDecimal> getExchangeRates(Invoice invoice) {
 
-        String baseCurrency = invoice.getCurrency();
-        LocalDate date = invoice.getDate();
+        String baseCurrency = invoice.currency();
+        LocalDate date = invoice.date();
 
-        Set<String> targetCurrencies = invoice.getLines().stream()
+        Set<String> targetCurrencies = invoice.lines().stream()
                 .map(InvoiceLine::currency)
                 .filter(currency -> !currency.equalsIgnoreCase(baseCurrency))
                 .collect(Collectors.toSet());
