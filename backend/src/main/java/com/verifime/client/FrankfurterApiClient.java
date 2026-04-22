@@ -29,6 +29,9 @@ public class FrankfurterApiClient {
     @Inject
     FrankfurterResponseMapper responseMapper;
 
+    @Inject
+    HttpClientWrapper httpClientWrapper;
+
     private static final Logger LOG = Logger.getLogger(FrankfurterApiClient.class);
 
     @PostConstruct
@@ -40,16 +43,20 @@ public class FrankfurterApiClient {
 
     public Map<String, BigDecimal> getRates(String baseCurrency, LocalDate date) {
 
-        String url = String.format(
+        String url = buildUrl(baseCurrency, date);
+        LOG.infof("FrankfurterApiClient:getRates - Calling API url=%s", url);
+
+        return getParsedResponse(url);
+    }
+
+    String buildUrl(String baseCurrency, LocalDate date) {
+        return String.format(
                 "%s%s?base=%s&date=%s",
                 config.baseUrl(),
                 config.endpoint(),
                 baseCurrency,
                 date
         );
-        LOG.infof("FrankfurterApiClient:getRates - Calling API url=%s", url);
-
-        return getParsedResponse(url);
     }
 
     private Map<String, BigDecimal> getParsedResponse(String url) {
@@ -72,11 +79,6 @@ public class FrankfurterApiClient {
     }
 
     private HttpResponse<String> sendRequest(String url) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
-
-        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return httpClientWrapper.send(url);
     }
 }
