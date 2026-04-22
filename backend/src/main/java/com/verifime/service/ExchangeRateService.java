@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ExchangeRateService {
 
-    @Inject
-    ExchangeRateProvider exchangeRateProvider;
+    @Inject ExchangeRateProvider exchangeRateProvider;
+    @Inject ExchangeRateFacade exchangeRateFacade;
 
     private static final Logger LOG = Logger.getLogger(ExchangeRateService.class);
 
@@ -39,8 +39,20 @@ public class ExchangeRateService {
             return Collections.emptyMap();
         }
 
-        String targetCurrency = String.join(",", targetCurrencies);
+        Map<String, BigDecimal> allRates = exchangeRateFacade.getRates(baseCurrency, date);
 
-        return exchangeRateProvider.getRates(baseCurrency, targetCurrency, date);
+        return getTargetCurrencyRates(targetCurrencies, allRates);
+
+    }
+
+    private Map<String, BigDecimal> getTargetCurrencyRates(Set<String> targetCurrencies, Map<String, BigDecimal> allRates) {
+        Map<String, BigDecimal> targetCurrencyRates = targetCurrencies.stream()
+                .filter(allRates::containsKey)
+                .collect(Collectors.toMap(
+                        currency -> currency,
+                        allRates::get
+                ));
+        LOG.infof("ExchangeRateService:getTargetCurrencyRates - target currencies are : %s", targetCurrencyRates);
+        return targetCurrencyRates;
     }
 }

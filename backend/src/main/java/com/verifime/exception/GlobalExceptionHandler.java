@@ -1,6 +1,5 @@
 package com.verifime.exception;
 
-import com.verifime.service.ExchangeRateService;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

@@ -8,7 +8,6 @@ public interface ExchangeRateProvider {
 
     Map<String, BigDecimal> getRates(
             String baseCurrency,
-            String targetCurrencies,
             LocalDate date
     );
 }
