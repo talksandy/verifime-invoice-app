@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.math.BigDecimal;
+import org.jboss.logging.Logger;
 
 @Path("/invoice")
 public class InvoiceResource {
@@ -19,12 +20,17 @@ public class InvoiceResource {
     @Inject
     InvoiceService invoiceService;
 
+    private static final Logger LOG = Logger.getLogger(InvoiceResource.class);
+
     @POST
     @Path("/total")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response calculateTotal(@Valid InvoiceRequest request) {
+        LOG.infof("InvoiceResource:calculateTotal - request=%s", request);
         BigDecimal total = invoiceService.calculateTotal(request);
+        LOG.infof("InvoiceResource:calculateTotal Invoice total calculated successfully: %s", total);
+
         return Response.ok(total.toString()).build();
     }
 }

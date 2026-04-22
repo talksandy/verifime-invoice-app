@@ -1,5 +1,6 @@
 package com.verifime.exception;
 
+import com.verifime.service.ExchangeRateService;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -9,12 +10,12 @@ import org.jboss.logging.Logger;
 @Provider
 public class GlobalExceptionHandler implements ExceptionMapper<Throwable> {
 
-    private static final Logger log = Logger.getLogger(GlobalExceptionHandler.class);
+    private static final Logger LOG = Logger.getLogger(GlobalExceptionHandler.class);
 
     @Override
     public Response toResponse(Throwable exception) {
 
-        log.error("Unhandled exception", exception);
+        LOG.error("GlobalExceptionHandler:toResponse - Unhandled exception", exception);
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity("Error: Internal server error")

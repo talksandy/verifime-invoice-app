@@ -2,6 +2,7 @@ package com.verifime.service;
 
 import com.verifime.util.RoundingUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.logging.Logger;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -11,6 +12,8 @@ public class CurrencyConverter {
 
     private static final MathContext MATH_CONTEXT = MathContext.DECIMAL64;
 
+    private static final Logger LOG = Logger.getLogger(CurrencyConverter.class);
+
     /**
      * Converts amount from source currency to base currency
      *
@@ -19,6 +22,8 @@ public class CurrencyConverter {
      * @return converted amount in base currency (rounded to 2 decimals)
      */
     public BigDecimal convertToBase(BigDecimal amount, BigDecimal rate) {
+        LOG.debugf("CurrencyConverter:convertToBase - Converting amount=%s rate=%s",
+                amount, rate);
         if (amount == null || rate == null) {
             throw new IllegalArgumentException("Amount and rate must not be null");
         }

@@ -5,10 +5,12 @@ import com.verifime.config.ExchangeApiConfig;
 import com.verifime.dto.RateResponse;
 import com.verifime.exception.ExchangeRateException;
 
+import com.verifime.service.ExchangeRateService;
 import com.verifime.util.RoundingUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,6 +34,8 @@ public class FrankfurterExchangeRateProvider implements ExchangeRateProvider {
 
     private HttpClient httpClient;
 
+    private static final Logger LOG = Logger.getLogger(FrankfurterExchangeRateProvider.class);
+
     @PostConstruct
     void init() {
         httpClient = HttpClient.newBuilder()
@@ -50,18 +54,23 @@ public class FrankfurterExchangeRateProvider implements ExchangeRateProvider {
                 targetCurrencies,
                 date
         );
+        LOG.infof("FrankfurterExchangeRateProvider:getRates - Calling API url=%s", url);
 
         try {
             HttpResponse<String> response = sendRequest(url);
+            LOG.debug("FrankfurterExchangeRateProvider:getRates - Response received from API");
 
             if (response.statusCode() != 200) {
-                throw new ExchangeRateException("API error: " + response.statusCode());
+                LOG.errorf("FrankfurterExchangeRateProvider:getRates - API returned status=%s",
+                        response.statusCode());
+                throw new ExchangeRateException("FrankfurterExchangeRateProvider API error: " + response.statusCode());
             }
 
             return parseRates(response.body());
 
-        } catch (Exception e) {
-            throw new ExchangeRateException("Failed to fetch exchange rates", e);
+        } catch (Exception exception) {
+            LOG.errorf("FrankfurterExchangeRateProvider:getRates - Error while calling API: %s", exception.getMessage());
+            throw new ExchangeRateException("Failed to fetch exchange rates from Frankfurter API", exception);
         }
     }
 
@@ -86,12 +95,12 @@ public class FrankfurterExchangeRateProvider implements ExchangeRateProvider {
         Map<String, BigDecimal> rates = new HashMap<>();
 
         for (RateResponse rate : ratesArray) {
-            if (rate.getQuote() == null || rate.getRate() == null) {
+            if (rate.quote() == null || rate.rate() == null) {
                 continue; // skip bad data
             }
             rates.put(
-                    rate.getQuote(),
-                    RoundingUtil.roundFx(rate.getRate())
+                    rate.quote(),
+                    RoundingUtil.roundFx(rate.rate())
             );
         }
         return rates;
