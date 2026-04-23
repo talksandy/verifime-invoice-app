@@ -39,9 +39,6 @@ const nextConfig: NextConfig = {
 
   // Strict mode for development
   reactStrictMode: true,
-
-  // SWR configuration for better caching
-  swcMinify: true,
 };
 
 export default nextConfig;
