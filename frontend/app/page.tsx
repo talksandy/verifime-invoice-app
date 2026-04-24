@@ -1,6 +1,4 @@
-'use client';
-
-import InvoiceForm from "./components/InvoiceForm";
+import { InvoiceForm } from "@/features/invoice";
 
 export default function Home() {
   return <InvoiceForm />;

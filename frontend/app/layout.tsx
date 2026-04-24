@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ErrorBoundary from "./components/ErrorBoundary";
-import MuiProvider from "./MuiProvider";
+import MuiProvider from "./providers/MuiProvider";
+import ErrorBoundary from "@/shared/ui/ErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
