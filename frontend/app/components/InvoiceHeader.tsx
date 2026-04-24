@@ -2,6 +2,8 @@ import { Box, TextField } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
+import { FIELD_LABELS, VALIDATION_RULES } from "../constants";
+import styles from "../styles/components.module.css";
 
 type Props = {
     date: Dayjs | null;
@@ -21,9 +23,9 @@ export default function InvoiceHeader({
                                           currencyError,
                                       }: Props) {
     return (
-        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-            <DatePicker 
-                label="Invoice Date" 
+        <Box className={styles.headerRow}>
+            <DatePicker
+                label={FIELD_LABELS.INVOICE_DATE}
                 value={date} 
                 onChange={onDateChange}
                 maxDate={dayjs()}
@@ -36,9 +38,13 @@ export default function InvoiceHeader({
             />
 
             <TextField
-                label="Base Currency"
+                label={FIELD_LABELS.BASE_CURRENCY}
                 value={currency}
-                onChange={(e) => onCurrencyChange(e.target.value.slice(0, 3))}
+                onChange={(e) =>
+                    onCurrencyChange(
+                        e.target.value.slice(0, VALIDATION_RULES.CURRENCY_CODE_LENGTH)
+                    )
+                }
                 sx={{ minWidth: 150 }}
                 required
                 error={!!currencyError}

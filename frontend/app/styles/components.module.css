@@ -1,0 +1,64 @@
+/* Form Container Styles */
+.formContainer {
+  padding: 32px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+/* Header Styles */
+.headerContainer {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.headerRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.currencyInput {
+  min-width: 150px;
+}
+
+/* Line Item Styles */
+.lineItemContainer {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.descriptionField {
+  flex: 0.6;
+}
+
+.amountField {
+  flex: 0.4;
+}
+
+.currencyField {
+  flex: 0.4;
+}
+
+/* Lines Container Styles */
+.linesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.addLineButton {
+  align-self: flex-start;
+}
+
+/* Reset Button Styles */
+.resetButton {
+  margin-left: 16px;
+}

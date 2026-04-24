@@ -1,3 +1,4 @@
+import { API } from "../constants";
 import { InvoicePayload } from "../types/invoice"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -5,7 +6,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 export async function calculateInvoiceTotal(
     payload: InvoicePayload
 ): Promise<string> {
-    const response = await fetch(`${API_URL}/invoice/total`, {
+    const response = await fetch(`${API_URL}${API.ENDPOINTS.INVOICE_TOTAL}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

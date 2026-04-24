@@ -4,7 +4,9 @@ import {
     IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { BUTTON_LABELS, FIELD_LABELS, VALIDATION_RULES } from "../constants";
 import { InvoiceLine } from "../types/invoice";
+import styles from "../styles/components.module.css";
 
 type Props = {
     line: InvoiceLine;
@@ -24,18 +26,18 @@ export default function InvoiceLineItem({
                                             errors,
                                         }: Props) {
     return (
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+        <Box className={styles.lineItemContainer}>
             <TextField
-                label="Description"
-                sx={{ flex: 0.6 }}
+                label={FIELD_LABELS.DESCRIPTION}
+                className={styles.descriptionField}
                 value={line.description}
                 onChange={(e) => onChange(index, "description", e.target.value)}
             />
 
             <TextField
-                label="Amount"
+                label={FIELD_LABELS.AMOUNT}
                 type="number"
-                sx={{ flex: 0.4 }}
+                className={styles.amountField}
                 value={line.amount}
                 onChange={(e) => onChange(index, "amount", e.target.value)}
                 error={!!errors?.amount}
@@ -43,17 +45,23 @@ export default function InvoiceLineItem({
             />
 
             <TextField
-                label="Currency"
+                label={FIELD_LABELS.CURRENCY}
                 value={line.currency}
-                onChange={(e) => onChange(index, "currency", e.target.value.slice(0, 3))}
-                sx={{ flex: 0.4 }}
+                onChange={(e) =>
+                    onChange(
+                        index,
+                        "currency",
+                        e.target.value.slice(0, VALIDATION_RULES.CURRENCY_CODE_LENGTH)
+                    )
+                }
+                className={styles.currencyField}
                 required
                 error={!!errors?.currency}
                 helperText={errors?.currency}
             />
 
             {canDelete && (
-                <IconButton onClick={() => onRemove(index)}>
+                <IconButton aria-label={BUTTON_LABELS.DELETE} onClick={() => onRemove(index)}>
                     <DeleteIcon />
                 </IconButton>
             )}

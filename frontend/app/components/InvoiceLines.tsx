@@ -1,6 +1,8 @@
 import { Button, Box } from "@mui/material";
 import InvoiceLineItem from "./InvoiceLineItem";
+import { BUTTON_LABELS } from "../constants";
 import { InvoiceLine } from "../types/invoice";
+import styles from "../styles/components.module.css";
 
 type Props = {
     lines: InvoiceLine[];
@@ -18,7 +20,7 @@ export default function InvoiceLines({
                                          lineErrors,
                                      }: Props) {
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box className={styles.linesContainer}>
             {lines.map((line, index) => (
                 <InvoiceLineItem
                     key={index}
@@ -31,8 +33,8 @@ export default function InvoiceLines({
                 />
             ))}
 
-            <Button variant="outlined" onClick={onAdd} sx={{ alignSelf: "flex-start" }}>
-                Add Line
+            <Button variant="outlined" onClick={onAdd} className={styles.addLineButton}>
+                {BUTTON_LABELS.ADD_LINE}
             </Button>
         </Box>
     );

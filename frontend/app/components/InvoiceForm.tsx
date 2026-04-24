@@ -2,14 +2,20 @@
 
 import { useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
-import { Paper, Typography, Button, CircularProgress } from "@mui/material";
+import { Paper, Typography, Button, CircularProgress, Box } from "@mui/material";
 
 import InvoiceHeader from "./InvoiceHeader";
 import InvoiceLines from "./InvoiceLines";
 import ResultDisplay from "./ResultDisplay";
+import ResetButton from "./ResetButton";
 
+import { BUTTON_LABELS } from "../constants";
 import { InvoiceLine } from "../types/invoice";
-import { calculateInvoiceTotal } from "../services/invoiceService";
+import { useInvoiceValidation } from "../hooks/useInvoiceValidation";
+import { useInvoiceCalculation } from "../hooks/useInvoiceCalculation";
+import { useFormReset } from "../hooks/useFormReset";
+
+import styles from "../styles/components.module.css";
 
 export default function InvoiceForm() {
     const [date, setDate] = useState<Dayjs | null>(dayjs());
@@ -18,98 +24,44 @@ export default function InvoiceForm() {
         { description: "", amount: "", currency: "" },
     ]);
 
-    const [total, setTotal] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    // Custom hooks for validation and calculation
+    const { dateError, currencyError, lineErrors, validate, clearErrors } = useInvoiceValidation();
+    const { total, error, loading, calculate: calculateTotal, clearResults } = useInvoiceCalculation();
 
-    // Validation errors
-    const [dateError, setDateError] = useState<string | null>(null);
-    const [currencyError, setCurrencyError] = useState<string | null>(null);
-    const [lineErrors, setLineErrors] = useState<Array<{amount?: string, currency?: string}>>([{}]);
+    // Form reset hook
+    const { reset } = useFormReset({
+        onDateChange: setDate,
+        onCurrencyChange: setCurrency,
+        onLinesChange: setLines,
+        clearValidationErrors: clearErrors,
+        clearResults,
+    });
 
     const updateLine = (index: number, field: keyof InvoiceLine, value: string) => {
         const updated = [...lines];
         updated[index][field] = value;
         setLines(updated);
-        setTotal(null);
     };
 
     const addLine = () => {
         setLines([...lines, { description: "", amount: "", currency: "" }]);
-        setLineErrors([...lineErrors, {}]);
     };
 
     const removeLine = (index: number) => {
         setLines(lines.filter((_, i) => i !== index));
-        setLineErrors(lineErrors.filter((_, i) => i !== index));
     };
 
-    const calculate = async () => {
-        // Reset previous errors
-        setDateError(null);
-        setCurrencyError(null);
-        setLineErrors(lines.map(() => ({})));
-        setError(null);
-        setTotal(null);
+    const handleCalculate = async () => {
+        // Validate before calculating
+        const isValid = validate(date, currency, lines);
+        if (!isValid) return;
 
-        // Validation
-        let hasErrors = false;
-
-        if (!date) {
-            setDateError("Invoice date is required");
-            hasErrors = true;
-        }
-
-        if (!currency.trim()) {
-            setCurrencyError("Base currency is required");
-            hasErrors = true;
-        }
-
-        const newLineErrors = lines.map((line, index) => {
-            const errors: {amount?: string, currency?: string} = {};
-            if (!line.amount.trim()) {
-                errors.amount = "Amount is required";
-                hasErrors = true;
-            }
-            if (!line.currency.trim()) {
-                errors.currency = "Currency is required";
-                hasErrors = true;
-            }
-            return errors;
-        });
-
-        setLineErrors(newLineErrors);
-
-        if (hasErrors) {
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const payload = {
-                invoice: {
-                    currency,
-                    date: date!.format("YYYY-MM-DD"),
-                    lines: lines.map((l) => ({
-                        description: l.description,
-                        currency: l.currency,
-                        amount: Number(parseFloat(l.amount).toFixed(2)),
-                    })),
-                },
-            };
-
-            const result = await calculateInvoiceTotal(payload);
-            setTotal(result);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        // If validation passes, calculate total
+        await calculateTotal(date!, currency, lines);
     };
 
     return (
-        <Paper sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
+        <Paper className={styles.formContainer}>
             <Typography variant="h5" gutterBottom>
                 Invoice Calculator
             </Typography>
@@ -131,9 +83,17 @@ export default function InvoiceForm() {
                 lineErrors={lineErrors}
             />
 
-            <Button variant="contained" onClick={calculate} disabled={loading} sx={{ mt: 3 }}>
-                {loading ? <CircularProgress size={20} /> : "Calculate Total"}
-            </Button>
+            <Box className={styles.buttonContainer}>
+                <Button 
+                    variant="contained" 
+                    onClick={handleCalculate} 
+                    disabled={loading}
+                >
+                    {loading ? <CircularProgress size={20} /> : BUTTON_LABELS.CALCULATE_TOTAL}
+                </Button>
+                
+                <ResetButton onReset={reset} />
+            </Box>
 
             <ResultDisplay total={total} error={error} />
         </Paper>
