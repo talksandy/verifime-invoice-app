@@ -1,5 +1,6 @@
 package com.verifime.cache;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -9,7 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeRateCacheTest {
 
-    private final ExchangeRateCache cache = new ExchangeRateCache();
+    private final SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
+    private final ExchangeRateCache cache = new ExchangeRateCache(meterRegistry);
 
     @Test
     void testGet_ExistingKey() {
@@ -21,6 +23,10 @@ class ExchangeRateCacheTest {
         Map<String, BigDecimal> result = cache.get(key);
 
         assertEquals(rates, result);
+        assertEquals(
+                1.0,
+                meterRegistry.get("exchange_rate_cache_hits_total").counter().count()
+        );
     }
 
     @Test
@@ -30,6 +36,10 @@ class ExchangeRateCacheTest {
         Map<String, BigDecimal> result = cache.get(key);
 
         assertNull(result);
+        assertEquals(
+                1.0,
+                meterRegistry.get("exchange_rate_cache_misses_total").counter().count()
+        );
     }
 
     @Test
@@ -42,6 +52,10 @@ class ExchangeRateCacheTest {
         Map<String, BigDecimal> result = cache.get(key);
 
         assertEquals(rates, result);
+        assertEquals(
+                1.0,
+                meterRegistry.get("exchange_rate_cache_hits_total").counter().count()
+        );
     }
 
     @Test
