@@ -1,56 +1,178 @@
-# backend
+# VerifiMe Backend – Invoice Calculation Service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+This is a backend service built using Quarkus to calculate multi-currency invoice totals.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+It exposes a REST API that converts invoice line items into a base currency using exchange rates and returns the final total.
 
-## Running the application in dev mode
+---
 
-You can run your application in dev mode that enables live coding using:
-```shell script
+## 🚀 Tech Stack
+
+* Java 17
+* Quarkus
+* Maven
+* Micrometer (Metrics)
+* SmallRye Health (Health checks)
+* OpenAPI / Swagger
+
+---
+
+## 📁 Project Structure
+
+```
+backend/
+ ├── src/
+ ├── pom.xml
+ ├── Dockerfile
+ └── target/
+```
+
+---
+
+# ▶️ Running the Application
+
+## 🟢 Option 1 — Run in Dev Mode (Local Development)
+
+```bash
 ./mvnw compile quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+* App runs on: http://localhost:8080
+* Dev UI: http://localhost:8080/q/dev-ui
 
-## Packaging and running the application
+> Dev mode enables hot reload and debugging features.
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+---
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+## 🟢 Option 2 — Run in Production Mode (Jar)
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+### Step 1: Build
+
+```bash
+./mvnw clean package
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+### Step 2: Run
 
-## Creating a native executable
-
-You can create a native executable using: 
-```shell script
-./mvnw package -Dnative
+```bash
+java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+* Runs in production mode
+* Dev UI is disabled
+
+---
+
+## 🐳 Option 3 — Run with Docker (Recommended for Consistency)
+
+### Step 1: Build Docker Image
+
+```bash
+docker build -t verifime-backend .
 ```
 
-You can then execute your native executable with: `./target/backend-1.0.0-SNAPSHOT-runner`
+### Step 2: Run Container
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+```bash
+docker run -p 8080:8080 verifime-backend
+```
 
-## Provided Code
+### Step 3: Verify
 
-### REST
+```text
+http://localhost:8080/q/health
+http://localhost:8080/q/metrics
+```
 
-Easily start your REST Web Services
+---
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+# 📡 API Endpoint
+
+## POST /invoice/total
+
+### Request Example
+
+```json
+{
+  "invoice": {
+    "currency": "NZD",
+    "date": "2020-07-07",
+    "lines": [
+      {
+        "description": "CPU",
+        "currency": "USD",
+        "amount": 700
+      }
+    ]
+  }
+}
+```
+
+### Response example
+
+```
+1600.86
+```
+
+---
+
+# 📊 Observability
+
+## Metrics
+
+```
+/q/metrics
+```
+
+* HTTP request count
+* Response time
+* Custom metrics (if added)
+
+---
+
+## Health Checks
+
+```
+/q/health
+```
+
+* Application health status
+* Readiness checks
+
+---
+
+# 📘 API Documentation
+
+Swagger UI:
+
+```
+http://localhost:8080/q/swagger-ui
+```
+
+---
+
+# 🔐 Security Notes
+
+* Dev UI is enabled only in development mode
+* In production, it is disabled automatically
+* Observability endpoints should be secured in real deployments
+
+---
+
+# 🧠 Design Highlights
+
+* Layered architecture (Controller → Service → Client)
+* Single external API call for multiple currency conversions
+* Accurate financial calculations using BigDecimal
+* Centralized rounding logic
+* Clean error handling with proper HTTP status codes
+
+---
+
+# ⚠️ Notes for Developers
+
+* Ensure port 8080 is free before running
+* Use Docker for consistent environment
+* Dev mode is for development only — not production use
+
+---
