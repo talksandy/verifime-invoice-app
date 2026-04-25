@@ -1,21 +1,79 @@
-# Frontend (Next.js) — VerifiMe Invoice App
+# 🚀 Frontend (Next.js) — VerifiMe Invoice App
 
-This is the frontend application built using Next.js. It connects to the backend API via environment configuration.
+This is the frontend application built using **Next.js**. It interacts with the backend API to calculate invoice totals and display results to the user.
 
 ---
 
-## ⚙️ Prerequisites
+# ⚡ Quick Start
 
-Make sure the following are installed:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+App will be available at:
+
+```
+http://localhost:3000
+```
+
+---
+
+# 📦 Prerequisites
+
+Make sure you have:
 
 * Node.js (>= 18)
 * npm (>= 9)
-* Docker (for containerized run)
-* Backend service running (e.g. `http://localhost:8080`)
+* Docker (optional, for containerized run)
+* Backend service running (default: `http://localhost:8080`)
 
 ---
 
-## 🚀 Run Application (Local - npm)
+# ⚙️ Environment Setup
+
+Create a `.env.local` file from the example:
+
+```bash
+cp .env.example .env.local
+```
+
+Update the API URL if needed:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+```
+
+> ⚠️ `.env.local` is not committed to version control.
+
+---
+
+# 🔄 Frontend–Backend Communication
+
+The frontend communicates with the backend using:
+
+```
+NEXT_PUBLIC_API_URL
+```
+
+### Environment-specific values:
+
+| Environment | API URL               |
+| ----------- | --------------------- |
+| Local (npm) | http://localhost:8080 |
+| Docker      | http://backend:8080   |
+
+### Why different values?
+
+* `localhost` → refers to your machine
+* `backend` → refers to Docker service name inside container network
+
+---
+
+# 🚀 Running the Application
+
+## 🟢 Local Development (Recommended)
 
 ### 1. Navigate to frontend
 
@@ -23,41 +81,24 @@ Make sure the following are installed:
 cd frontend
 ```
 
----
-
 ### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
----
-
-### 3. Configure environment
-
-Ensure `.env.local` exists in the `frontend/` folder with:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
-```
-
----
-
-### 4. Start development server
+### 3. Start development server
 
 ```bash
 npm run dev
 ```
 
-Application will be available at:
-
-```
-http://localhost:3000
-```
+* Uses Turbopack (fast dev server)
+* Compiles pages on-demand
 
 ---
 
-## 🏗️ Run Application (Production - npm)
+## 🏗️ Production Mode (Local)
 
 ### 1. Build the application
 
@@ -65,19 +106,20 @@ http://localhost:3000
 npm run build
 ```
 
----
-
 ### 2. Start production server
 
 ```bash
 npm start
 ```
 
+* Optimized build
+* No hot reload
+
 ---
 
-## 🐳 Run Application (Docker)
+# 🐳 Running with Docker
 
-### 1. Build Docker image
+## 1. Build Docker image
 
 ```bash
 docker build -t verifime-frontend .
@@ -85,7 +127,7 @@ docker build -t verifime-frontend .
 
 ---
 
-### 2. Run Docker container
+## 2. Run container
 
 ```bash
 docker run -p 3000:3000 \
@@ -93,7 +135,7 @@ docker run -p 3000:3000 \
   verifime-frontend
 ```
 
-Application will be available at:
+App will be available at:
 
 ```
 http://localhost:3000
@@ -101,46 +143,91 @@ http://localhost:3000
 
 ---
 
-## 🔗 Backend Configuration
+## ⚠️ Important (Docker Networking)
 
-* Ensure backend is running before starting frontend
+If backend is also running in Docker:
 
-* For local setup:
+```bash
+-e NEXT_PUBLIC_API_URL=http://backend:8080
+```
 
-  ```
-  NEXT_PUBLIC_API_URL=http://localhost:8080
-  ```
-
-* For Docker (if backend is another container):
-
-  ```
-  NEXT_PUBLIC_API_URL=http://backend:8080
-  ```
+👉 `localhost` inside Docker refers to the container itself, NOT your machine.
 
 ---
 
-## ⚠️ Important Notes
+# ⚡ Next.js Behavior
 
+### Development Mode (`npm run dev`)
+
+* Uses Turbopack
+* Lazy compilation (pages compile on first access)
+* Faster rebuilds
+
+### Production Mode
+
+* Uses pre-built assets (`next build`)
+* Optimized performance
+* Suitable for deployment
+
+---
+
+# 🔗 Backend Configuration
+
+Ensure backend is running before starting frontend.
+
+### Default:
+
+```
+http://localhost:8080
+```
+
+---
+
+# ⚠️ Important Notes
+
+* Restart the app after changing environment variables
 * `.env.local` is used only for local development
-* Always restart the app after changing environment variables
-* In Docker/production, pass environment variables using `-e`
+* Use environment variables in production (Docker / hosting platform)
+* Do not commit `.env.local`
 
 ---
 
-## 🐞 Troubleshooting
+# 🐞 Troubleshooting
 
-### Environment variable not detected
+### ❌ Environment variable not detected
 
-* Ensure `.env.local` is inside `frontend/`
-* Restart the server
+* Ensure `.env.local` exists in `frontend/`
+* Restart dev server
 
-### App not connecting to backend
+---
+
+### ❌ App cannot connect to backend
 
 * Verify backend is running
-* Check API URL
+* Check `NEXT_PUBLIC_API_URL`
+* Ensure correct URL for Docker vs local
 
-### First load is slow
+---
 
-* Expected due to Next.js lazy compilation
+### ❌ CORS errors
+
+* Ensure backend CORS configuration allows `http://localhost:3000`
+* Verify backend is returning correct headers
+
+---
+
+### ❌ Slow first load
+
+* Expected behavior due to Next.js lazy compilation
+* Subsequent loads will be faster
+
+---
+
+# 🧠 Key Highlights
+
+* Uses modern Next.js features (SSR-ready)
+* Environment-based configuration (no hardcoded URLs)
+* Docker support for consistent environments
+* Clean separation from backend service
 
 ---
