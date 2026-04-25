@@ -1,0 +1,28 @@
+
+
+services:
+  backend:
+    container_name: verifime-backend
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    networks:
+      - verifime-network
+
+  frontend:
+    container_name: verifime-frontend
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8080
+    depends_on:
+      - backend
+    networks:
+      - verifime-network
+
+networks:
+  verifime-network:
+    driver: bridge

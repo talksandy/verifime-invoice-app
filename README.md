@@ -239,3 +239,11 @@ This architecture provides:
 * Secure communication and infrastructure
 * Flexibility to evolve from simple to advanced setups
 * Cost-effective deployment options based on application needs
+
+
+# run with docker-compose.yml
+
+docker compose up --build
+
+# stop containers
+docker compose down
